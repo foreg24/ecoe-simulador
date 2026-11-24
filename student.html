@@ -23,9 +23,10 @@
         <label class="lbl" for="j-name">Su nombre (opcional)</label>
         <input id="j-name" class="inp" placeholder="Nombre del estudiante">
         <label class="lbl" for="j-code">Código de la estación</label>
-        <input id="j-code" class="inp code-inp" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="K7P2QX">
+        <input id="j-code" class="inp code-inp" maxlength="12" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" inputmode="text" enterkeyhint="go" placeholder="K7P2QX">
         <button class="btn primary big" id="btn-join">Conectar con la evaluadora</button>
         <div class="row"><span class="conn red"><i></i><span class="conn-txt">Sin conexión</span></span><span id="join-status" class="muted small"></span></div>
+        <button class="btn ghost small" id="btn-diag" type="button">Diagnóstico de conexión</button>
       </div>
       <div class="card join-card">
         <h2>Practicar sin evaluadora</h2>
@@ -89,5 +90,7 @@
   <div id="rotate" class="rotate"><div>↻</div><p>Gira la tablet a horizontal</p></div>
 
   <script type="module" src="js/room.js"></script>
+  <script nomodule>document.body.innerHTML='<p style="padding:24px;font:18px sans-serif">Este navegador es muy antiguo. Actualice Chrome o Safari, o use otro navegador.</p>';</script>
+  <script>window.addEventListener('error',function(e){var s=document.getElementById('join-status');if(s)s.textContent='Error: '+e.message;});</script>
 </body>
 </html>

@@ -5,7 +5,7 @@ import { HOTSPOTS, REGIONS, BED_OVERLAY, VENAS } from '../data/hotspots.js';
 import { CASES, getCase, guiaEstudiante, TEMAS } from '../data/cases.js';
 import { HANDWASH } from '../data/handwash.js';
 import { DOMINIOS, dominioOpciones, claseOpciones, NANDA, NOC, NIC, ESCALAS_LIKERT } from '../data/pae-catalog.js';
-import { Link, normalizeCode } from './peer.js';
+import { Link, normalizeCode, webrtcSupport, DIAG } from './peer.js';
 import { load, save, remove, pushHistory, getHistory } from './storage.js';
 import { renderReport } from './report.js';
 
@@ -892,15 +892,21 @@ function init() {
   const params = new URLSearchParams(location.search);
   if (params.get('calibrar')) return calibrate();
 
-  $('#j-code').addEventListener('input', (e) => { e.target.value = normalizeCode(e.target.value); });
+  // No reescribir el campo mientras se escribe (rompe los teclados Android); se normaliza al conectar.
+  const sup = webrtcSupport();
+  if (!sup.rtc) $('#join-status').textContent = '⚠ Este navegador no soporta WebRTC: use Chrome o Safari actualizados.';
+  else if (!sup.peerjs) $('#join-status').textContent = '⚠ No cargó la librería de conexión (¿sin internet o bloqueador?).';
+  $('#btn-diag').onclick = () => modal(`<h3>Diagnóstico de conexión</h3><p class="small">WebRTC: <b>${sup.rtc ? 'sí' : 'NO'}</b> · PeerJS: <b>${typeof Peer !== 'undefined' ? 'sí' : 'NO'}</b> · En línea: <b>${navigator.onLine ? 'sí' : 'NO'}</b></p><p class="small muted">${esc(navigator.userAgent)}</p><pre class="small" style="white-space:pre-wrap">${esc(DIAG.log.join(String.fromCharCode(10)) || 'Sin eventos aún. Pulse Conectar primero.')}</pre>`, { wide: true });
   $('#j-name').value = load('student-name', '');
   $('#btn-join').onclick = () => {
     const code = normalizeCode($('#j-code').value);
-    if (code.length !== 6) return toast('El código tiene 6 caracteres.');
+    $('#j-code').value = code;
+    if (code.length !== 6) return toast('El código tiene 6 caracteres (letras y números).');
     save('student-name', $('#j-name').value.trim());
     $('#join-status').textContent = 'Conectando…';
     startLink(code);
   };
+  $('#j-code').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('#btn-join').click(); });
   $('#btn-practice').onclick = () => {
     save('student-name', $('#j-name').value.trim());
     if (S.link) { S.link.close(); S.link = null; }

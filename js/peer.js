@@ -5,6 +5,21 @@
 const PREFIX = 'ecoe-uan-';
 const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // sin 0/O/1/I
 const HEARTBEAT_MS = 5000;
+// STUN + TURN (relay) para redes con NAT estricto (tablets en otra red, datos móviles, Wi-Fi institucional)
+const PEER_OPTS = {
+  debug: 1,
+  config: {
+    iceServers: [
+      { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302', 'stun:stun.cloudflare.com:3478'] },
+      { urls: ['turn:openrelay.metered.ca:80', 'turn:openrelay.metered.ca:443', 'turn:openrelay.metered.ca:443?transport=tcp'], username: 'openrelayproject', credential: 'openrelayproject' },
+    ],
+  },
+};
+export const DIAG = { log: [] };
+function diag(m) { DIAG.log.push(new Date().toLocaleTimeString() + ' ' + m); if (DIAG.log.length > 30) DIAG.log.shift(); }
+export function webrtcSupport() {
+  return { rtc: typeof RTCPeerConnection !== 'undefined', peerjs: typeof Peer !== 'undefined', online: navigator.onLine, ua: navigator.userAgent };
+}
 
 export function newCode() {
   let s = '';
@@ -36,15 +51,16 @@ export class Link {
   get peerId() { return PREFIX + this.code; }
 
   _start() {
-    if (typeof Peer === 'undefined') { this._setDetail('PeerJS no cargó (sin internet). Se sigue trabajando sin conexión.'); return; }
+    if (typeof Peer === 'undefined') { this._setDetail('PeerJS no cargó (sin internet o bloqueado). Se sigue trabajando sin conexión.'); return; }
+    if (typeof RTCPeerConnection === 'undefined') { this._setDetail('Este navegador no soporta WebRTC. Use Chrome o Safari actualizados (no el navegador de una app).'); return; }
     if (this.role === 'host') this._startHost(); else this._startClient();
   }
 
-  _setDetail(d) { this.detail = d; this._updateStatus(true); }
+  _setDetail(d) { this.detail = d; diag(d); this._updateStatus(true); }
 
   _startHost() {
     try { if (this.peer) this.peer.destroy(); } catch (e) { /* */ }
-    const peer = new Peer(this.peerId, { debug: 1 });
+    const peer = new Peer(this.peerId, PEER_OPTS);
     this.peer = peer;
     peer.on('open', () => { this.retries = 0; this._setDetail('Esperando al estudiante…'); });
     peer.on('connection', (c) => this._attach(c));
@@ -53,7 +69,7 @@ export class Link {
       const t = err && err.type;
       if (t === 'unavailable-id') { this._setDetail('Recuperando el código…'); setTimeout(() => this._startHost(), 3000); }
       else if (['network', 'server-error', 'socket-error', 'socket-closed'].includes(t)) { this._setDetail('Sin conexión con el servidor; reintentando…'); setTimeout(() => this._ensurePeer(), 4000); }
-      else console.warn('peer error', t, err);
+      else { console.warn('peer error', t, err); this._setDetail('Error: ' + t); }
     });
   }
 
@@ -65,7 +81,7 @@ export class Link {
 
   _startClient() {
     try { if (this.peer) this.peer.destroy(); } catch (e) { /* */ }
-    const peer = new Peer({ debug: 1 });
+    const peer = new Peer(PEER_OPTS);
     this.peer = peer;
     peer.on('open', () => this._connect());
     peer.on('disconnected', () => { setTimeout(() => { try { if (!peer.destroyed) peer.reconnect(); } catch (e) { /* */ } }, 1500); });
@@ -73,16 +89,23 @@ export class Link {
       const t = err && err.type;
       if (t === 'peer-unavailable') { this._setDetail('No se encuentra la estación. Verifique el código; reintentando…'); this._reconnectSoon(4000); }
       else if (['network', 'server-error', 'socket-error', 'socket-closed'].includes(t)) { this._setDetail('Sin conexión; reintentando…'); setTimeout(() => this._startClient(), 4000); }
-      else { console.warn('peer error', t, err); this._reconnectSoon(4000); }
+      else { console.warn('peer error', t, err); this._setDetail('Error de conexión: ' + (t || err) + '; reintentando…'); this._reconnectSoon(4000); }
     });
   }
 
   _connect() {
     if (this.closed || !this.peer || this.peer.destroyed) return;
     if (this.peer.disconnected) { try { this.peer.reconnect(); } catch (e) { /* */ } return this._reconnectSoon(2000); }
-    this._setDetail('Conectando…');
+    this._setDetail('Servidor OK. Abriendo canal con la evaluadora…');
     const c = this.peer.connect(this.peerId, { reliable: true, serialization: 'json' });
     this._attach(c);
+    clearTimeout(this._ct);
+    this._ct = setTimeout(() => {
+      if (c.open) return;
+      this._setDetail('El servidor encuentra la estación pero la red no deja abrir el canal directo. Reintentando… (si persiste: conecte la tablet y el PC a la MISMA red Wi-Fi o use datos móviles)');
+      try { c.close(); } catch (e) { /* */ }
+      this._reconnectSoon(1000);
+    }, 15000);
   }
 
   _reconnectSoon(ms) {
