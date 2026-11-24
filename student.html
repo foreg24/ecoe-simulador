@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#0f6b6b">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>ECOE · Estudiante</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="assets/items/fonendoscopio.png">
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+</head>
+<body class="student" data-screen="join">
+
+  <!-- Unirse -->
+  <section class="screen" id="screen-join">
+    <div class="join-wrap">
+      <div class="card join-card">
+        <div class="brand"><img src="assets/items/fonendoscopio.png" alt=""><div><div class="eyebrow">UAN · Principios del cuidado de enfermería</div><h1>Simulador ECOE</h1></div></div>
+        <label class="lbl" for="j-name">Su nombre (opcional)</label>
+        <input id="j-name" class="inp" placeholder="Nombre del estudiante">
+        <label class="lbl" for="j-code">Código de la estación</label>
+        <input id="j-code" class="inp code-inp" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="K7P2QX">
+        <button class="btn primary big" id="btn-join">Conectar con la evaluadora</button>
+        <div class="row"><span class="conn red"><i></i><span class="conn-txt">Sin conexión</span></span><span id="join-status" class="muted small"></span></div>
+      </div>
+      <div class="card join-card">
+        <h2>Practicar sin evaluadora</h2>
+        <p class="muted small">Funciona sin internet. El paciente responde automáticamente y la nota es solo la automática.</p>
+        <label class="lbl" for="p-case">Caso</label><select id="p-case" class="inp"></select>
+        <div class="row">
+          <label class="lbl">Duración <select id="p-dur" class="inp"><option value="15">15 min</option><option value="18">18 min</option><option value="20">20 min</option></select></label>
+          <label class="lbl">Minijuego de higiene <select id="p-mini" class="inp"><option value="primera">Solo la primera</option><option value="siempre">Siempre</option></select></label>
+        </div>
+        <button class="btn big" id="btn-practice">Empezar práctica</button>
+        <h3>Intentos anteriores</h3>
+        <div id="history"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Guía del estudiante -->
+  <section class="screen" id="screen-guide">
+    <div class="guide-wrap">
+      <div class="card guide-card">
+        <div class="guide-top"><span class="conn red"><i></i><span class="conn-txt">Sin conexión</span></span><button class="btn ghost small btn-fs">Pantalla completa</button></div>
+        <div class="door-ic">🚪 Está en la puerta de la habitación</div>
+        <div id="guide-body"></div>
+        <button class="btn primary huge" id="btn-start">INICIAR</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Estación -->
+  <section class="screen" id="screen-station">
+    <header class="topbar" id="topbar">
+      <div class="tb-left"><div class="timer" id="timer">15:00</div><button class="btn ghost small" id="btn-guide" title="Ver la situación"><span id="top-case">Caso</span></button></div>
+      <div class="tb-state" id="top-state"></div>
+      <div class="tb-right">
+        <span class="conn red"><i></i><span class="conn-txt">Sin conexión</span></span>
+        <button class="btn" id="btn-talk">🗨 Hablar</button>
+        <button class="btn" id="btn-other">✱ Otra acción</button>
+        <button class="btn" id="btn-deliver">📋 Entrega</button>
+        <button class="btn danger" id="btn-finish">Finalizar</button>
+        <button class="btn ghost icon-btn btn-fs" title="Pantalla completa">⛶</button>
+      </div>
+    </header>
+    <main class="station-main">
+      <div class="stage" id="stage"></div>
+      <aside class="panel card">
+        <div id="panel-body" class="panel-body"></div>
+        <div class="feed-wrap"><div class="lbl">Lo que observa</div><div id="feed" class="feed"></div></div>
+      </aside>
+    </main>
+    <footer class="inventory" id="inventory">
+      <div class="inv-group hand"><div class="lbl">Mano</div><div class="slots" id="hand-slots"></div></div>
+      <div class="inv-group tray"><div class="lbl">Bandeja / riñonera</div><div class="slots" id="tray-slots"></div></div>
+    </footer>
+  </section>
+
+  <!-- Reporte -->
+  <section class="screen" id="screen-report"><div class="report-wrap" id="report"></div></section>
+
+  <div id="modal" class="modal"></div>
+  <div id="toasts" class="toasts"></div>
+  <div id="rotate" class="rotate"><div>↻</div><p>Gira la tablet a horizontal</p></div>
+
+  <script type="module" src="js/room.js"></script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f6b6b">
+  <title>Simulador ECOE · UAN</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="assets/items/fonendoscopio.png">
+  <style>
+    .home { min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; background: radial-gradient(circle at 20% 10%, #d9f2ef, transparent 50%), radial-gradient(circle at 80% 90%, #cfe8f0, transparent 50%), var(--bg); }
+    .home-card { max-width: 920px; width: 100%; }
+    .hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: 22px; align-items: center; }
+    .hero img.room { width: 100%; border-radius: 18px; box-shadow: var(--shadow); }
+    .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; }
+    .choice { display: flex; flex-direction: column; gap: 6px; padding: 18px; border-radius: 18px; background: #fff; box-shadow: var(--shadow); text-decoration: none; color: var(--ink); border: 2px solid transparent; transition: transform .12s, border-color .12s; min-height: 140px; }
+    .choice:active { transform: scale(.98); }
+    .choice:hover { border-color: var(--teal-300); }
+    .choice img { width: 54px; height: 54px; }
+    .choice b { font-size: 1.2rem; }
+    @media (max-width: 760px) { .hero, .choices { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main class="home">
+    <div class="home-card">
+      <div class="hero">
+        <div>
+          <div class="eyebrow">Universidad Antonio Nariño · 3.er semestre</div>
+          <h1 style="font-size:2.2rem">Simulador ECOE de Enfermería</h1>
+          <p class="muted">Principios del cuidado de enfermería. Estaciones de 15 minutos con evaluación en vivo: cognitivo, psicomotriz y comunicativo (escala 0–5).</p>
+        </div>
+        <img class="room" src="assets/room-bg.png" alt="Habitación de hospital vista desde arriba">
+      </div>
+      <div class="choices">
+        <a class="choice" href="student.html"><img src="assets/items/fonendoscopio.png" alt=""><b>Soy estudiante</b><span class="muted">Usar en la tablet (horizontal). Entre con el código de la estación o practique solo.</span></a>
+        <a class="choice" href="evaluator.html"><img src="assets/items/tensiometro.png" alt=""><b>Soy evaluadora</b><span class="muted">Crear la estación, seguir al estudiante en vivo y calificar.</span></a>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0f6b6b">
+  <title>ECOE · Evaluadora</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="assets/items/tensiometro.png">
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+</head>
+<body class="evaluator" data-screen="setup">
+
+  <!-- Crear estación -->
+  <section class="screen" id="screen-setup">
+    <div class="setup-wrap">
+      <div class="card">
+        <div class="brand"><img src="assets/items/tensiometro.png" alt=""><div><div class="eyebrow">UAN · Principios del cuidado de enfermería</div><h1>Panel de la evaluadora</h1></div></div>
+        <h2>1. Elija el caso</h2>
+        <div id="case-list" class="case-list"></div>
+        <h2>2. Configure</h2>
+        <div class="row wrap">
+          <label class="lbl">Duración <select id="dur" class="inp"><option value="15" selected>15 min</option><option value="18">18 min</option><option value="20">20 min</option></select></label>
+          <label class="lbl">Minijuego de higiene <select id="mini" class="inp"><option value="primera">Solo la primera</option><option value="siempre">Siempre</option></select></label>
+          <label class="lbl">Aprueba con ≥ <input id="umbral" class="inp sm" type="number" step="0.1" value="3.0"></label>
+        </div>
+        <button class="btn primary huge" id="btn-create">Crear estación</button>
+      </div>
+      <div class="card">
+        <h2>Historial de estaciones</h2>
+        <div id="eval-history"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- En vivo -->
+  <section class="screen" id="screen-live">
+    <header class="ev-head">
+      <div class="ev-h1">
+        <div><div class="eyebrow" id="h-phase"></div><div class="h-case" id="h-case"></div><div class="muted small" id="h-student"></div></div>
+        <div class="code-box"><span class="muted small">Código</span><b id="h-code">------</b><button class="btn ghost small" id="btn-copy">Copiar</button></div>
+        <div class="timer" id="h-timer">15:00</div>
+        <span class="conn red" id="h-conn"><i></i><span class="conn-txt">Sin conexión</span></span>
+      </div>
+      <div class="ev-h2">
+        <div id="final-score" class="final-score"></div>
+        <button class="btn ghost small" id="btn-guide-ev">Caso / historia</button>
+        <button class="btn ghost small" id="btn-sound" title="Sonido de alertas">🔔</button>
+        <button class="btn" id="btn-report">Ver reporte</button>
+        <button class="btn ghost" id="btn-new">Nueva estación</button>
+      </div>
+    </header>
+    <main class="ev-main">
+      <div class="ev-left">
+        <nav class="col-tabs" id="col-tabs">
+          <button data-tab="cognitivo">Cognitivo <b>0</b></button>
+          <button data-tab="psicomotriz" class="sel">Psicomotriz <b>0</b></button>
+          <button data-tab="comunicativo">Comunicativo <b>0</b></button>
+        </nav>
+        <div class="cols" id="cols"></div>
+      </div>
+      <div class="ev-right">
+        <div class="card ctrl">
+          <nav class="ctrl-tabs" id="ctrl-tabs">
+            <button data-ct="voz" class="sel">Voz del paciente</button><button data-ct="monitor">Monitor</button><button data-ct="eventos">Eventos</button><button data-ct="tiempo">Tiempo</button><button data-ct="calif">Calificación</button>
+          </nav>
+          <div id="ctrl-body" class="ctrl-body"></div>
+        </div>
+        <div class="card"><div class="lbl">Alertas en tiempo real</div><div id="alerts" class="alerts"></div></div>
+        <div class="card">
+          <div class="row between"><div class="lbl">Línea de tiempo</div>
+            <div class="tl-filter" id="tl-filter"><button data-f="todo" class="sel">Todo</button><button data-f="talk">Hablar / otra</button><button data-f="acc">Acciones</button><button data-f="doc">Registros</button><button data-f="eval">Evaluadora</button></div></div>
+          <div id="timeline" class="timeline"></div>
+        </div>
+      </div>
+    </main>
+    <div class="report-wrap ev-report" id="eval-report"></div>
+  </section>
+
+  <!-- Reporte del historial -->
+  <section class="screen" id="screen-hist">
+    <div class="report-wrap"><button class="btn ghost no-print" id="hist-back">← Volver</button><div id="hist-report"></div></div>
+  </section>
+
+  <div id="modal" class="modal"></div>
+  <div id="toasts" class="toasts"></div>
+  <script type="module" src="js/evaluator.js"></script>
+</body>
+</html>
